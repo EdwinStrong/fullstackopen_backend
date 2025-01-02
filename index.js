@@ -15,11 +15,13 @@ const requestLogger = (request, response, next) => {
   next() //No enviar respuesta a cliente
 }
 
-
-
 //Para post
 app.use(cors())
 app.use(express.json())
+
+//Mostrar vista estática (react)
+app.use(express.static('dist'))
+
 app.use(requestLogger)
 
 let notes = [
