@@ -1,6 +1,9 @@
+require('dotenv').config();
+
 //Importar modulo de server web
 const express = require('express')
 const cors = require('cors')
+const Note = require('./models/notes')
 
 const app = express()
 
@@ -51,22 +54,16 @@ app.get('/', (request, response) => {
 
 //ENDPOINT ESPECIFICO
 app.get("/api/notes", (request, response) => {
-  response.json(notes)
+  Note.find({}).then(notes => {
+    response.json(notes)
+  })
 })
 
 //GET BY ID
 app.get("/api/notes/:id", (request, response) => {
-  const id = Number(request.params.id)
-  console.log(id)
-
-  const note = notes.find(note => note.id === id)
-  console.log(note)
-
-  if(!note){
-    response.status(404).json({'error': `Not found Note with id ${id}`})
-  }
-
-  response.json(note)
+  Note.findById(request.params.id).then(note => {
+    response.json(note)
+  })
 })
 
 //DELETE
@@ -92,15 +89,14 @@ app.post('/api/notes', (request, response) => {
   }
 
   //Crear nueva nota a agregar
-  const note = {
+  const note = new Note( {
     content: body.content,
-    important: Boolean(body.important) || false,
-    id: generateId(),
-  }
+    important: Boolean(body.important) || false
+  })
 
-  notes = notes.concat(note)
-
-  response.json(note)
+  note.save().then(savedNote => {
+    response.json(note)
+  })
 })
 
 const generateId = () => {
